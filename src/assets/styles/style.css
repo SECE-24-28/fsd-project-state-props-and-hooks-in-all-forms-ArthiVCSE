@@ -407,8 +407,7 @@ body{
         rgba(166, 168, 162, 0.692),
         rgba(0, 0, 0, 0.55)
     ),
-    url("./assets/images/bg-main.jpg");
-
+    url('../images/bg-main.jpg');
     background-size:cover;
 
     background-position:center;
