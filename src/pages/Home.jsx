@@ -4,10 +4,18 @@ import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
+import SchoolIcon from '@mui/icons-material/School';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import EventIcon from '@mui/icons-material/Event';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import SecurityIcon from '@mui/icons-material/Security';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 function Home() {
   return (
     <div className="d-flex flex-column min-vh-100">
-      <TopBar message="🎓 Admissions Open 2026 - 2027 |" linkTo="/enquiry-form" linkText="Enquire now." />
+      <TopBar message={<span className="d-flex align-items-center justify-content-center gap-2"><SchoolIcon fontSize="small"/> Admissions Open 2026 - 2027 |</span>} linkTo="/enquiry-form" linkText="Enquire now." />
       <Navbar />
 
       {/* HERO */}
@@ -16,20 +24,20 @@ function Home() {
           <p className="breadcrumb">Home &gt; Welcome</p>
           <h1>Where <span>Tradition</span> Meets Modern Excellence</h1>
           <p className="hero-description">
-            Experience a vibrant university environment powered by innovation, research excellence,
-            industry-focused learning, and student success. Ashford University prepares future
-            leaders for a rapidly evolving world.
+          Experience a vibrant university environment powered by innovation, research excellence, industry-focused learning,
+         and student success. Ashford University provides an inspiring platform for academic achievement, personal growth, professional development.
+         Through innovative programs, experienced faculty, modern facilities, and a supportive campus culture, we prepare students to lead, innovate, and succeed in an increasingly connected world. Every journey begins with knowledge, and every achievement starts here.
           </p>
           <div className="hero-buttons">
-            <Link to="/" className="hero-btn">🚀 Virtual Tour</Link>
-            <Link to="/programmes" className="hero-btn">🎓 Explore Programmes</Link>
+            <Link to="https://youtu.be/16Vtza0Jy_s" className="hero-btn d-inline-flex align-items-center gap-2"><RocketLaunchIcon fontSize="small"/> Virtual Tour</Link>
+            <Link to="/programmes" className="hero-btn d-inline-flex align-items-center gap-2"><SchoolIcon fontSize="small"/> Explore Programmes</Link>
           </div>
         </div>
 
         <div className="hero-right">
-          <div className="notice-card"><h3>📅 Admission Deadline</h3><p>30 June 2026</p></div>
-          <div className="notice-card"><h3>🎉 Next Event</h3><p>Tech Symposium - 20 Jun</p></div>
-          <div className="notice-card"><h3>📚 Timetable Published</h3><p>Jun - Nov 2026</p></div>
+          <div className="notice-card"><h3 className="d-flex align-items-center gap-2"><CalendarMonthIcon/> Admission Deadline</h3><p>30 June 2026</p></div>
+          <div className="notice-card"><h3 className="d-flex align-items-center gap-2"><EventIcon/> Next Event</h3><p>Tech Symposium - 20 Jun</p></div>
+          <div className="notice-card"><h3 className="d-flex align-items-center gap-2"><MenuBookIcon/> Timetable Published</h3><p>Jun - Nov 2026</p></div>
         </div>
       </section>
 
@@ -45,15 +53,15 @@ function Home() {
         <div className="side-image"><img src="/images/left.jpg" alt="Campus" /></div>
         <section className="portal-section">
           <div className="portal-card">
-            <h2>🎓 STUDENT</h2><p>Attendance, results and courses</p><br />
+            <h2 className="d-flex align-items-center gap-2"><SchoolIcon/> STUDENT</h2><p>Attendance, results and courses</p><br />
             <Link to="/student-dashboard" className="hero-btn">Open Portal</Link>
           </div>
           <div className="portal-card">
-            <h2>🛡️ ADMIN</h2><p>University management dashboard</p><br />
-            <Link to="/admin-dashboard" className="hero-btn">Open Dashboard</Link>
+            <h2 className="d-flex align-items-center gap-2"><SecurityIcon/> ADMIN</h2><p>University management dashboard</p><br />
+            <Link to="/admin-dashboard" className="hero-btn">Open Panel</Link>
           </div>
           <div className="portal-card">
-            <h2>👨‍🏫 FACULTY</h2><p>Staff info &amp; Student reports</p><br />
+            <h2 className="d-flex align-items-center gap-2"><SchoolIcon/> FACULTY</h2><p>Staff info &amp; Student reports</p><br />
             <Link to="/faculty-dashboard" className="hero-btn">Open Panel</Link>
           </div>
         </section>
@@ -64,7 +72,7 @@ function Home() {
       <section className="feature-section">
         <div className="feature-box">
           <div className="feature-box-top">
-            <h2>🏫 INDOOR CAMPUS MAP</h2>
+            <h2 className="d-flex align-items-center gap-2"><AccountBalanceIcon/> INDOOR CAMPUS MAP</h2>
             <a href="/images/campus-map.png" target="_blank" rel="noreferrer">Open full map →</a>
           </div>
           <div className="feature-content green-box">
@@ -75,7 +83,7 @@ function Home() {
         </div>
         <div className="feature-box">
           <div className="feature-box-top">
-            <h2>📍 HOW TO REACH US</h2>
+            <h2 className="d-flex align-items-center gap-2"><LocationOnIcon/> HOW TO REACH US</h2>
             <a href="https://maps.google.com" target="_blank" rel="noreferrer">Get directions →</a>
           </div>
           <div className="feature-content blue-box">

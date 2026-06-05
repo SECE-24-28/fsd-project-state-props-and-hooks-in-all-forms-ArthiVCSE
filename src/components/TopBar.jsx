@@ -6,7 +6,7 @@ function TopBar({ message, linkTo, linkText }) {
     <div className="top-bar text-center">
       {message}
       {linkTo && (
-        <Link to={linkTo} style={{ color: '#e6dede', textDecoration: 'none' }}>
+        <Link to={linkTo} style={{ color: '#e0dee6', textDecoration: 'none' }}>
           {' '}{linkText}
         </Link>
       )}

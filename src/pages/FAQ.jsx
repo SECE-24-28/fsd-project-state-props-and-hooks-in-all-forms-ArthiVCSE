@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import HelpIcon from '@mui/icons-material/Help';
 
 const faqs = [
   { q:'How to apply for admission?',  a:'Students can apply through the online application form available on the university portal.' },
@@ -14,7 +15,7 @@ function FAQ() {
   const [open, setOpen] = useState(0);
   return (
     <div className="d-flex flex-column min-vh-100">
-      <TopBar message="❓ Frequently Asked Questions" />
+      <TopBar message={<span className="d-flex align-items-center justify-content-center gap-2"><HelpIcon fontSize="small"/> Frequently Asked Questions</span>} />
       <Navbar />
       <div className="container my-5 flex-grow-1">
         <div className="row justify-content-center">

@@ -1,13 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/Email';
+
 function Footer() {
   return (
     <footer className="footer">
       <div className="footer-container">
 
         <div className="footer-column">
-          <h2>Ashford University</h2>
+          <h3>Ashford University</h3>
           <p>Empowering students with innovation, leadership, research and academic excellence since 1892.</p>
         </div>
 
@@ -46,9 +50,9 @@ function Footer() {
         <div className="footer-column">
           <h3>Contact Us</h3>
           <p>
-            📍 25 University Road, London, United Kingdom<br />
-            📞 +44 9876543210<br />
-            ✉️ info@ashforduniversity.edu
+            <span className="d-flex align-items-center gap-2"><LocationOnIcon fontSize="small"/> 25 University Road, London, United Kingdom</span><br />
+            <span className="d-flex align-items-center gap-2"><PhoneIcon fontSize="small"/> 9876543210</span><br />
+            <span className="d-flex align-items-center gap-2"><EmailIcon fontSize="small"/> info@ashforduniversity.edu</span>
           </p>
         </div>
 

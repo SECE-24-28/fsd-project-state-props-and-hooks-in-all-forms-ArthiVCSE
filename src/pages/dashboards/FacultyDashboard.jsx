@@ -1,9 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  getUsers, getMarks, saveMarks, getAtt, saveAtt,
-  getRequests, getLoggedEmail, getLoggedUser, doLogout, getGrade,
+  apiGetUsers, apiGetAllMarks, apiUpsertMark, apiDeleteMark,
+  apiGetAllAtt, apiUpsertAtt, apiDeleteAtt,
+  apiGetUserRequests,
+  getLoggedEmail, getLoggedUser, doLogout, getGrade,
 } from '../../utils/storage';
+
+import SchoolIcon from '@mui/icons-material/School';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
+import EditIcon from '@mui/icons-material/Edit';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import SearchIcon from '@mui/icons-material/Search';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import LockIcon from '@mui/icons-material/Lock';
 
 const SUBJECTS = [
   'Machine Learning','Data Science','Computer Networks','Cloud Computing',
@@ -35,14 +50,32 @@ function FacultyDashboard() {
   const [aForm, setAForm] = useState(emptyAForm);
   const [aMsg,  setAMsg]  = useState({ text:'', type:'' });
 
-  // ── LOAD ───────────────────────────────────────────────────────────
-  const loadStudents = useCallback(() => {
-    setStudents(getUsers().filter(u => u.role === 'Student'));
+  const loadStudents = useCallback(async () => {
+    try {
+      const res = await apiGetUsers('Student');
+      setStudents(res.data);
+    } catch (err) { console.error('Error loading students:', err); }
   }, []);
-  const loadMarks    = useCallback(() => setMarks(getMarks()),    []);
-  const loadAtt      = useCallback(() => setAtt(getAtt()),        []);
-  const loadReqs     = useCallback(() => {
-    setMyReqs(getRequests().filter(r => r.email === loggedEmail));
+
+  const loadMarks = useCallback(async () => {
+    try {
+      const res = await apiGetAllMarks();
+      setMarks(res.data);
+    } catch (err) { console.error('Error loading marks:', err); }
+  }, []);
+
+  const loadAtt = useCallback(async () => {
+    try {
+      const res = await apiGetAllAtt();
+      setAtt(res.data);
+    } catch (err) { console.error('Error loading attendance:', err); }
+  }, []);
+
+  const loadReqs = useCallback(async () => {
+    try {
+      const res = await apiGetUserRequests(loggedEmail);
+      setMyReqs(res.data);
+    } catch (err) { console.error('Error loading requests:', err); }
   }, [loggedEmail]);
 
   useEffect(() => { loadStudents(); loadMarks(); loadAtt(); }, [loadStudents, loadMarks, loadAtt]);
@@ -54,11 +87,9 @@ function FacultyDashboard() {
     if (tab === 'resetpwd')   loadReqs();
   }, [tab, loadStudents, loadMarks, loadAtt, loadReqs]);
 
-  // ── STATS ──────────────────────────────────────────────────────────
-  const studentCount = getUsers().filter(u => u.role === 'Student').length;
+  const studentCount = students.length;
 
-  // ── SUBMIT MARKS ───────────────────────────────────────────────────
-  const submitMarks = (e) => {
+  const submitMarks = async (e) => {
     e.preventDefault();
     const { studentId, subject, internal, assignment } = mForm;
     const int  = parseInt(internal);
@@ -71,51 +102,50 @@ function FacultyDashboard() {
       setMMsg({ text:'Marks must be between 0 and 25.', type:'danger' }); return;
     }
 
-    const all   = getMarks();
-    const entry = { studentId, subject, internal: int, assignment: asgn, total: int + asgn };
-    const idx   = all.findIndex(m => m.studentId === studentId && m.subject === subject);
-    if (idx >= 0) all[idx] = entry; else all.push(entry);
-    saveMarks(all);
-    loadMarks();
-    setMForm(emptyMForm);
-    setMMsg({ text:`✅ Marks saved for ${studentId} — ${subject}.`, type:'success' });
-    setTimeout(() => setMMsg({ text:'', type:'' }), 3000);
+    try {
+      await apiUpsertMark({ studentId, subject, internal: int, assignment: asgn });
+      await loadMarks();
+      setMForm(emptyMForm);
+      setMMsg({ text:`Marks saved for ${studentId} — ${subject}.`, type:'success' });
+      setTimeout(() => setMMsg({ text:'', type:'' }), 3000);
+    } catch (err) {
+      setMMsg({ text: err.message || 'Error saving marks.', type:'danger' });
+    }
   };
 
-  const deleteMark = (i) => {
+  const deleteMark = async (id) => {
     if (!window.confirm('Delete this entry?')) return;
-    const all = getMarks();
-    all.splice(i, 1);
-    saveMarks(all);
-    loadMarks();
+    try {
+      await apiDeleteMark(id);
+      await loadMarks();
+    } catch (err) { console.error('Error deleting mark:', err); }
   };
 
-  // ── SUBMIT ATTENDANCE ──────────────────────────────────────────────
-  const submitAtt = (e) => {
+  const submitAtt = async (e) => {
     e.preventDefault();
     const { student, date, status } = aForm;
     if (!student || !date) {
       setAMsg({ text:'Student and date are required.', type:'danger' }); return;
     }
-    const all = getAtt();
-    const idx = all.findIndex(a => a.student === student && a.date === date);
-    if (idx >= 0) all[idx].status = status; else all.push({ student, date, status });
-    saveAtt(all);
-    loadAtt();
-    setAForm(emptyAForm);
-    setAMsg({ text:`✅ ${student} marked ${status} on ${date}.`, type:'success' });
-    setTimeout(() => setAMsg({ text:'', type:'' }), 3000);
+
+    try {
+      await apiUpsertAtt({ student, date, status });
+      await loadAtt();
+      setAForm(emptyAForm);
+      setAMsg({ text:`${student} marked ${status} on ${date}.`, type:'success' });
+      setTimeout(() => setAMsg({ text:'', type:'' }), 3000);
+    } catch (err) {
+      setAMsg({ text: err.message || 'Error saving attendance.', type:'danger' });
+    }
   };
 
-  const deleteAtt = (i) => {
-    const sorted = [...att].sort((a, b) => new Date(b.date) - new Date(a.date));
-    const entry  = sorted[i];
-    const all    = getAtt();
-    const ri     = all.findIndex(a => a.student === entry.student && a.date === entry.date);
-    if (ri >= 0) { all.splice(ri, 1); saveAtt(all); loadAtt(); }
+  const deleteAtt = async (id) => {
+    try {
+      await apiDeleteAtt(id);
+      await loadAtt();
+    } catch (err) { console.error('Error deleting attendance:', err); }
   };
 
-  // ── FILTERED DATA ──────────────────────────────────────────────────
   const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
     s.officialEmail.toLowerCase().includes(studentSearch.toLowerCase())
@@ -128,11 +158,9 @@ function FacultyDashboard() {
 
   const sortedAtt = [...att].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // ── RESET STATUS ───────────────────────────────────────────────────
   const lastReq    = myReqs[myReqs.length - 1];
   const isApproved = lastReq && lastReq.status === 'Approved';
 
-  // ── PROFILE FIELDS ─────────────────────────────────────────────────
   const profileFields = [
     ['Name',          loggedUser.name  || '—'],
     ['Email',         loggedEmail      || '—'],
@@ -144,13 +172,22 @@ function FacultyDashboard() {
 
   const handleLogout = () => { doLogout(); navigate('/login'); };
 
+  const renderTabBtn = (id, label, IconComp) => (
+    <li className="nav-item" key={id}>
+      <button className={`nav-link d-flex align-items-center gap-1 ${tab === id ? 'active' : ''}`} onClick={() => setTab(id)}>
+        <IconComp fontSize="small" />
+        {label}
+      </button>
+    </li>
+  );
+
   return (
     <div style={{ background:'#F3ECE2', minHeight:'100vh' }}>
 
-      {/* TOP BAR */}
-      <div className="top-bar text-center">👨‍🏫 Faculty Dashboard</div>
+      <div className="top-bar text-center d-flex justify-content-center align-items-center gap-2">
+        <SchoolIcon /> Faculty Dashboard
+      </div>
 
-      {/* NAVBAR */}
       <nav className="navbar navbar-expand-lg bg-light border-bottom">
         <div className="container">
           <div className="d-flex align-items-center">
@@ -161,23 +198,23 @@ function FacultyDashboard() {
             </div>
           </div>
           <div className="ms-auto d-flex align-items-center gap-3">
-            <span className="text-muted" style={{ fontSize:'13px' }}>
-              👨‍🏫 <strong>{name}</strong>
+            <span className="text-muted d-flex align-items-center gap-1" style={{ fontSize:'13px' }}>
+              <SchoolIcon fontSize="small"/> <strong>{name}</strong>
             </span>
-            <button className="btn btn-danger" onClick={handleLogout}>🔓 Logout</button>
+            <button className="btn btn-danger d-flex align-items-center gap-1" onClick={handleLogout}>
+              <LogoutIcon fontSize="small"/> Logout
+            </button>
           </div>
         </div>
       </nav>
 
       <div className="container py-4">
 
-        {/* WELCOME */}
         <div className="mb-4">
-          <h3 className="mb-0">Welcome, {name} 👋</h3>
+          <h3 className="mb-0">Welcome, {name}</h3>
           <p className="text-muted">Manage student records, assign marks and attendance.</p>
         </div>
 
-        {/* STATS */}
         <div className="row g-3 mb-4">
           <div className="col-md-4">
             <div className="card shadow-sm border-0 stat-card blue p-3">
@@ -199,31 +236,19 @@ function FacultyDashboard() {
           </div>
         </div>
 
-        {/* TABS */}
-        <ul className="nav nav-tabs mb-4 fw-semibold">
-          {[
-            ['profile',    '👤 My Profile'],
-            ['students',   '🎓 My Students'],
-            ['marks',      '📝 Assign Marks'],
-            ['attendance', '📋 Attendance'],
-            ['resetpwd',   '🔑 Password Reset'],
-          ].map(([id, label]) => (
-            <li className="nav-item" key={id}>
-              <button
-                className={`nav-link ${tab === id ? 'active' : ''}`}
-                onClick={() => setTab(id)}
-              >
-                {label}
-              </button>
-            </li>
-          ))}
+        <ul className="nav nav-tabs mb-4 fw-semibold border-0">
+          {renderTabBtn('profile', 'My Profile', PersonIcon)}
+          {renderTabBtn('students', 'My Students', SchoolIcon)}
+          {renderTabBtn('marks', 'Assign Marks', EditIcon)}
+          {renderTabBtn('attendance', 'Attendance', AssignmentIcon)}
+          {renderTabBtn('resetpwd', 'Password Reset', VpnKeyIcon)}
         </ul>
 
         {/* ══ PROFILE TAB ══════════════════════════════════════════════ */}
         {tab === 'profile' && (
           <div className="card shadow-sm border-0 rounded-4">
-            <div className="card-header bg-primary text-white rounded-top-4">
-              👤 Faculty Profile
+            <div className="card-header bg-primary text-white rounded-top-4 d-flex align-items-center gap-2">
+              <PersonIcon /> Faculty Profile
             </div>
             <div className="card-body">
               <div className="row g-0">
@@ -235,7 +260,7 @@ function FacultyDashboard() {
                 ))}
               </div>
               <div className="alert alert-info mt-3 mb-0" style={{ fontSize:'13px' }}>
-                ℹ️ Profile details are managed by the Admin.
+                Profile details are managed by the Admin.
                 Contact your administrator to update any information.
               </div>
             </div>
@@ -246,11 +271,11 @@ function FacultyDashboard() {
         {tab === 'students' && (
           <div className="card shadow-sm border-0 rounded-4">
             <div className="card-header bg-dark text-white rounded-top-4 d-flex justify-content-between align-items-center">
-              <span>🎓 Student Records</span>
+              <span className="d-flex align-items-center gap-2"><SchoolIcon /> Student Records</span>
               <input
                 type="text"
                 className="form-control form-control-sm"
-                placeholder="🔍 Search students..."
+                placeholder="Search students..."
                 style={{ width:'200px' }}
                 value={studentSearch}
                 onChange={e => setStudentSearch(e.target.value)}
@@ -273,7 +298,7 @@ function FacultyDashboard() {
                     ) : filteredStudents.map((s, i) => {
                       const hasMark = marks.find(m => m.studentId === s.officialEmail);
                       return (
-                        <tr key={i}>
+                        <tr key={s._id || i}>
                           <td>{i + 1}</td>
                           <td><strong>{s.name}</strong></td>
                           <td>{s.dept || '—'}</td>
@@ -282,7 +307,7 @@ function FacultyDashboard() {
                           <td>{s.officialEmail}</td>
                           <td>
                             <span className={`badge ${hasMark ? 'bg-success' : 'bg-secondary'}`}>
-                              {hasMark ? '✔ Entered' : 'Pending'}
+                              {hasMark ? 'Entered' : 'Pending'}
                             </span>
                           </td>
                         </tr>
@@ -300,8 +325,8 @@ function FacultyDashboard() {
           <>
             {/* MARKS FORM */}
             <div className="card shadow-sm border-0 rounded-4 mb-4">
-              <div className="card-header bg-success text-white rounded-top-4">
-                📝 Assign Marks
+              <div className="card-header bg-success text-white rounded-top-4 d-flex align-items-center gap-2">
+                <EditIcon /> Assign Marks
               </div>
               <div className="card-body">
                 <form onSubmit={submitMarks} className="row g-3">
@@ -347,7 +372,7 @@ function FacultyDashboard() {
                   </div>
 
                   <div className="col-md-2 d-flex align-items-end">
-                    <button type="submit" className="btn btn-success w-100">✅ Save</button>
+                    <button type="submit" className="btn btn-success w-100 d-flex align-items-center justify-content-center gap-1"><SaveIcon fontSize="small"/> Save</button>
                   </div>
 
                 </form>
@@ -360,9 +385,9 @@ function FacultyDashboard() {
             {/* MARKS TABLE */}
             <div className="card shadow-sm border-0 rounded-4">
               <div className="card-header bg-light d-flex justify-content-between align-items-center">
-                <strong>📊 Entered Marks</strong>
+                <strong className="d-flex align-items-center gap-2"><AssessmentIcon /> Entered Marks</strong>
                 <input type="text" className="form-control form-control-sm"
-                  placeholder="🔍 Filter..." style={{ width:'180px' }}
+                  placeholder="Filter..." style={{ width:'180px' }}
                   value={marksSearch}
                   onChange={e => setMarksSearch(e.target.value)} />
               </div>
@@ -386,7 +411,7 @@ function FacultyDashboard() {
                       ) : filteredMarks.map((m, i) => {
                         const { g, c } = getGrade(Number(m.total));
                         return (
-                          <tr key={i}>
+                          <tr key={m._id || i}>
                             <td>{i + 1}</td>
                             <td>{m.studentId}</td>
                             <td>{m.subject || '—'}</td>
@@ -395,8 +420,8 @@ function FacultyDashboard() {
                             <td><strong>{m.total}</strong></td>
                             <td><span className={`badge ${c}`}>{g}</span></td>
                             <td>
-                              <button className="btn btn-sm btn-danger"
-                                onClick={() => deleteMark(i)}>🗑</button>
+                              <button className="btn btn-sm btn-danger d-flex align-items-center justify-content-center"
+                                onClick={() => deleteMark(m._id)}><DeleteIcon fontSize="small"/></button>
                             </td>
                           </tr>
                         );
@@ -414,8 +439,8 @@ function FacultyDashboard() {
           <>
             {/* ATTENDANCE FORM */}
             <div className="card shadow-sm border-0 rounded-4 mb-4">
-              <div className="card-header bg-info text-white rounded-top-4">
-                📋 Mark Student Attendance
+              <div className="card-header bg-info text-white rounded-top-4 d-flex align-items-center gap-2">
+                <AssignmentIcon /> Mark Student Attendance
               </div>
               <div className="card-body">
                 <form onSubmit={submitAtt} className="row g-3">
@@ -453,7 +478,7 @@ function FacultyDashboard() {
                   </div>
 
                   <div className="col-md-2 d-flex align-items-end">
-                    <button type="submit" className="btn btn-info text-white w-100">💾 Save</button>
+                    <button type="submit" className="btn btn-info text-white w-100 d-flex align-items-center justify-content-center gap-1"><SaveIcon fontSize="small"/> Save</button>
                   </div>
 
                 </form>
@@ -465,8 +490,8 @@ function FacultyDashboard() {
 
             {/* ATTENDANCE TABLE */}
             <div className="card shadow-sm border-0 rounded-4">
-              <div className="card-header bg-light">
-                <strong>📅 Attendance Records</strong>
+              <div className="card-header bg-light d-flex align-items-center gap-2">
+                <CalendarMonthIcon /> <strong>Attendance Records</strong>
               </div>
               <div className="card-body p-0">
                 <div className="table-responsive">
@@ -484,14 +509,14 @@ function FacultyDashboard() {
                           ? 'bg-success' : a.status === 'Late'
                           ? 'bg-warning text-dark' : 'bg-danger';
                         return (
-                          <tr key={i}>
+                          <tr key={a._id || i}>
                             <td>{i + 1}</td>
                             <td>{a.student}</td>
                             <td>{a.date}</td>
                             <td><span className={`badge ${badge}`}>{a.status}</span></td>
                             <td>
-                              <button className="btn btn-sm btn-danger"
-                                onClick={() => deleteAtt(i)}>🗑</button>
+                              <button className="btn btn-sm btn-danger d-flex align-items-center justify-content-center"
+                                onClick={() => deleteAtt(a._id)}><DeleteIcon fontSize="small"/></button>
                             </td>
                           </tr>
                         );
@@ -509,12 +534,11 @@ function FacultyDashboard() {
           <div className="row justify-content-center">
             <div className="col-md-7">
               <div className="card shadow-sm border-0 rounded-4">
-                <div className="card-header bg-warning rounded-top-4">
-                  🔑 Password Reset Status
+                <div className="card-header bg-warning rounded-top-4 d-flex align-items-center gap-2">
+                  <VpnKeyIcon /> Password Reset Status
                 </div>
                 <div className="card-body">
 
-                  {/* REQUEST HISTORY */}
                   <table className="table table-bordered mb-4">
                     <thead className="table-light">
                       <tr><th>#</th><th>Email</th><th>Status</th></tr>
@@ -531,10 +555,10 @@ function FacultyDashboard() {
                           ? 'bg-success' : r.status === 'Rejected'
                           ? 'bg-danger' : 'bg-warning text-dark';
                         const label = r.status === 'Approved'
-                          ? '✔ Approved' : r.status === 'Rejected'
-                          ? '✖ Rejected' : '⏳ Pending';
+                          ? 'Approved' : r.status === 'Rejected'
+                          ? 'Rejected' : 'Pending';
                         return (
-                          <tr key={i}>
+                          <tr key={r._id || i}>
                             <td>{i + 1}</td>
                             <td>{r.email}</td>
                             <td><span className={`badge ${badge}`}>{label}</span></td>
@@ -544,7 +568,6 @@ function FacultyDashboard() {
                     </tbody>
                   </table>
 
-                  {/* STATUS ALERT */}
                   <div className={`alert ${
                     !lastReq                        ? 'alert-secondary' :
                     lastReq.status === 'Pending'   ? 'alert-warning'   :
@@ -552,16 +575,15 @@ function FacultyDashboard() {
                                                      'alert-success'
                   }`}>
                     {!lastReq                       && 'No request found. Use the link below to submit one.'}
-                    {lastReq?.status === 'Pending'  && '⏳ Your request is pending — waiting for Admin approval. The Reset Password button will activate once approved.'}
-                    {lastReq?.status === 'Rejected' && '✖ Your request was rejected by the Admin. Submit a new request if needed.'}
-                    {lastReq?.status === 'Approved' && '✔ Your request has been approved! Click the button below to reset your password.'}
+                    {lastReq?.status === 'Pending'  && 'Your request is pending — waiting for Admin approval. The Reset Password button will activate once approved.'}
+                    {lastReq?.status === 'Rejected' && 'Your request was rejected by the Admin. Submit a new request if needed.'}
+                    {lastReq?.status === 'Approved' && 'Your request has been approved! Click the button below to reset your password.'}
                   </div>
 
-                  {/* RESET BUTTON */}
                   <div className="d-grid mt-3">
                     {isApproved
-                      ? <Link to="/reset-password" className="btn btn-success btn-lg">🔐 Reset Password</Link>
-                      : <button className="btn btn-success btn-lg" disabled>🔐 Reset Password</button>
+                      ? <Link to="/reset-password" className="btn btn-success btn-lg d-flex align-items-center justify-content-center gap-2"><LockIcon /> Reset Password</Link>
+                      : <button className="btn btn-success btn-lg d-flex align-items-center justify-content-center gap-2" disabled><LockIcon /> Reset Password</button>
                     }
                   </div>
 
@@ -578,7 +600,6 @@ function FacultyDashboard() {
 
       </div>
 
-      {/* FOOTER */}
       <footer className="footer mt-4">
         <div className="footer-bottom">© 2026 Ashford University · All Rights Reserved</div>
       </footer>

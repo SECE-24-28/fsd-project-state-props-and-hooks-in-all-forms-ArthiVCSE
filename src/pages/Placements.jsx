@@ -4,6 +4,13 @@ import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
+import WorkIcon from '@mui/icons-material/Work';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import ComputerIcon from '@mui/icons-material/Computer';
+import MicIcon from '@mui/icons-material/Mic';
+import DescriptionIcon from '@mui/icons-material/Description';
+import PersonIcon from '@mui/icons-material/Person';
+
 const placementStats = [
   { value:'95%',     label:'Overall Placement Rate' },
   { value:'250+',    label:'Recruiting Companies' },
@@ -23,29 +30,29 @@ const companies = [
 ];
 
 const training = [
-  { icon:'🧠', title:'Aptitude Training',  desc:'Quantitative, logical and reasoning practice' },
-  { icon:'💻', title:'Technical Training', desc:'Coding, projects and domain skill enhancement' },
-  { icon:'🎤', title:'Mock Interviews',    desc:'HR and technical interview practice sessions' },
-  { icon:'📄', title:'Resume Building',    desc:'Professional profile development workshops' },
+  { icon: <PsychologyIcon fontSize="large" color="primary" />, title:'Aptitude Training',  desc:'Quantitative, logical and reasoning practice' },
+  { icon: <ComputerIcon fontSize="large" color="primary" />, title:'Technical Training', desc:'Coding, projects and domain skill enhancement' },
+  { icon: <MicIcon fontSize="large" color="primary" />, title:'Mock Interviews',    desc:'HR and technical interview practice sessions' },
+  { icon: <DescriptionIcon fontSize="large" color="primary" />, title:'Resume Building',    desc:'Professional profile development workshops' },
 ];
 
 const stories = [
-  { icon:'👩‍💻', name:'Priya Sharma',  role:'Software Engineer - Google',          degree:'B.Tech Computer Science Engineering',    quote:'Ashford University\'s placement training helped me secure my dream job at Google.' },
-  { icon:'👨‍💼', name:'Arjun Mehta',   role:'Business Analyst - Deloitte',         degree:'Master of Business Administration (MBA)', quote:'Mock interviews and aptitude sessions boosted my confidence.' },
-  { icon:'👨‍💻', name:'Karan Patel',   role:'Cloud Engineer - Amazon',             degree:'B.Tech Information Technology',          quote:'Industry-focused DevOps projects gave me the practical exposure for interviews.' },
-  { icon:'👩‍🔬', name:'Sneha Rajan',   role:'Embedded Systems Engineer - Wipro',   degree:'B.Tech Electronics & Communication',     quote:'The IoT and Robotics labs made me stand out during campus placements.' },
-  { icon:'👩‍💼', name:'Divya Nair',    role:'Marketing Executive - Accenture',    degree:'Bachelor of Business Administration',    quote:'The corporate mentorship prepared me for a real-world marketing career.' },
-  { icon:'👨‍💻', name:'Rahul Iyer',    role:'Data Scientist - Microsoft',          degree:'M.Tech Computer Science Engineering',    quote:'The AI curriculum gave me the foundation to excel at a global tech firm.' },
+  { icon: <PersonIcon color="primary" />, name:'Priya Sharma',  role:'Software Engineer - Google',          degree:'B.Tech Computer Science Engineering',    quote:'Ashford University\'s placement training helped me secure my dream job at Google.' },
+  { icon: <PersonIcon color="primary" />, name:'Arjun Mehta',   role:'Business Analyst - Deloitte',         degree:'Master of Business Administration (MBA)', quote:'Mock interviews and aptitude sessions boosted my confidence.' },
+  { icon: <PersonIcon color="primary" />, name:'Karan Patel',   role:'Cloud Engineer - Amazon',             degree:'B.Tech Information Technology',          quote:'Industry-focused DevOps projects gave me the practical exposure for interviews.' },
+  { icon: <PersonIcon color="primary" />, name:'Sneha Rajan',   role:'Embedded Systems Engineer - Wipro',   degree:'B.Tech Electronics & Communication',     quote:'The IoT and Robotics labs made me stand out during campus placements.' },
+  { icon: <PersonIcon color="primary" />, name:'Divya Nair',    role:'Marketing Executive - Accenture',    degree:'Bachelor of Business Administration',    quote:'The corporate mentorship prepared me for a real-world marketing career.' },
+  { icon: <PersonIcon color="primary" />, name:'Rahul Iyer',    role:'Data Scientist - Microsoft',          degree:'M.Tech Computer Science Engineering',    quote:'The AI curriculum gave me the foundation to excel at a global tech firm.' },
 ];
 
 function Placements() {
   return (
     <div className="d-flex flex-column min-vh-100">
-      <TopBar message="💼 95% Placement Record | Top Recruiters Visiting Campus" />
+      <TopBar message={<span className="d-flex align-items-center justify-content-center gap-2"><WorkIcon fontSize="small"/> 95% Placement Record | Top Recruiters Visiting Campus</span>} />
       <Navbar />
 
       {/* HERO */}
-      <section className="container py-5">
+      <section className="container py-3">
         <div className="row align-items-center">
           <div className="col-lg-6">
             <h1 className="fw-bold mb-4">Building Careers Through Excellence &amp; Innovation</h1>

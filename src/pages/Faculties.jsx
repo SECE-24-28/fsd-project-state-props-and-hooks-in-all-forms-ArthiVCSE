@@ -1,21 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { apiGetUsers } from '../utils/storage';
+
+import SchoolIcon from '@mui/icons-material/School';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import LaptopMacIcon from '@mui/icons-material/LaptopMac';
+import PublicIcon from '@mui/icons-material/Public';
+import TrackChangesIcon from '@mui/icons-material/TrackChanges';
 
 const stats = [
   { value:'50',   label:'Faculty Members' },
   { value:'90%+', label:'PhD Holders' },
   { value:'100+', label:'Research Publications' },
   { value:'50+',  label:'International Collaborations' },
-];
-
-const members = [
-  { img:'/images/faculty1.jpg', name:'Dr. Michael Anderson', role:'Professor - Computer Science',         desc:'AI researcher with 15+ years of experience in Machine Learning, Data Science and Cloud Computing.' },
-  { img:'/images/faculty2.jpg', name:'Dr. Sarah Johnson',    role:'Dean - Management Studies',            desc:'Expert in Business Analytics, Leadership and International Management.' },
-  { img:'/images/faculty3.jpg', name:'Dr. Emily Carter',     role:'Professor - Electronics & Communication', desc:'Leading researcher in Embedded Systems, IoT and VLSI Design with 12+ years of experience.' },
-  { img:'/images/faculty4.jpg', name:'Dr. Robert Williams',  role:'Head - Information Technology',        desc:'Specialist in Networking, Cyber Security, DevOps and Enterprise Software Development.' },
 ];
 
 const distribution = [
@@ -26,31 +26,44 @@ const distribution = [
 ];
 
 const features = [
-  { icon:'📚', title:'Research Guidance',    desc:'Support for projects, patents and publications' },
-  { icon:'💻', title:'Industry Training',    desc:'Real-world technical and industrial exposure' },
-  { icon:'🌍', title:'Global Collaboration', desc:'International seminars, exchange and workshops' },
-  { icon:'🎯', title:'Student Mentorship',   desc:'Academic counselling and career guidance support' },
+  { icon: <MenuBookIcon fontSize="large" color="primary" />, title:'Research Guidance',    desc:'Support for projects, patents and publications' },
+  { icon: <LaptopMacIcon fontSize="large" color="primary" />, title:'Industry Training',    desc:'Real-world technical and industrial exposure' },
+  { icon: <PublicIcon fontSize="large" color="primary" />, title:'Global Collaboration', desc:'International seminars, exchange and workshops' },
+  { icon: <TrackChangesIcon fontSize="large" color="primary" />, title:'Student Mentorship',   desc:'Academic counselling and career guidance support' },
 ];
 
 function Faculties() {
+  const [members, setMembers] = useState([]);
+
+  useEffect(() => {
+    const fetchFaculties = async () => {
+      try {
+        const res = await apiGetUsers('Faculty');
+        // Filter users who are faculty and have profile data set
+        // (If not set, we can show them anyway with default fallbacks)
+        setMembers(res.data);
+      } catch (err) {
+        console.error('Failed to load faculties:', err);
+      }
+    };
+    fetchFaculties();
+  }, []);
+
   return (
     <div className="d-flex flex-column min-vh-100">
-      <TopBar message="👨‍🏫 Meet Our Experienced Faculty Members & Academic Leaders" />
+      <TopBar message={<span className="d-flex align-items-center justify-content-center gap-2"><SchoolIcon fontSize="small"/> Meet Our Experienced Faculty Members & Academic Leaders</span>} />
       <Navbar />
 
       {/* HERO */}
-      <section className="container py-5">
+      <section className="container py-3">
         <div className="row align-items-center">
           <div className="col-lg-6">
             <h1 className="fw-bold mb-4">World-Class Faculty &amp; Academic Mentors</h1>
             <p className="text-secondary lh-lg">
               Ashford University is proud to have highly qualified faculty members with expertise
-              in Computer Science, Information Technology, Electronics &amp; Communication,
-              and Management Studies.
-              <br /><br />
-              Our professors, researchers, and mentors focus on delivering industry-oriented
+              Computer Science, Information Technology, Electronics &amp; Communication, and Management Studies. 
+              Our professors, researchers, and mentors focus on delivering industry oriented
               education, innovative research, practical training, and academic excellence.
-              <br /><br />
               Faculty members actively guide students in projects, internships, placements,
               entrepreneurship, research publications, and global competitions.
             </p>
@@ -83,21 +96,33 @@ function Faculties() {
         </div>
       </section>
 
-      {/* FACULTY MEMBERS */}
+      {/* FACULTY MEMBERS (DYNAMIC) */}
       <section className="container pb-5">
         <div className="text-center mb-5">
           <h2 className="fw-bold">Meet Our Faculty Leaders</h2>
           <p className="text-secondary">Experienced educators and researchers</p>
         </div>
         <div className="row g-4">
-          {members.map(({ img, name, role, desc }) => (
-            <div className="col-md-6 col-lg-3" key={name}>
+          {members.length === 0 ? (
+            <div className="col-12 text-center text-muted py-5">
+              No faculty profiles have been added yet. Administrators can add faculty from the Admin Dashboard.
+            </div>
+          ) : members.map((f) => (
+            <div className="col-md-6 col-lg-3" key={f._id}>
               <div className="card border-0 shadow rounded-4 h-100">
-                <img src={img} className="card-img-top" height="300" alt={name} />
+                {f.profileImg ? (
+                  <img src={f.profileImg} className="card-img-top" height="300" style={{ objectFit: 'cover' }} alt={f.name} />
+                ) : (
+                  <div className="bg-light text-center d-flex align-items-center justify-content-center" style={{ height:'300px' }}>
+                    <h1 className="text-muted m-0">{f.name.charAt(0)}</h1>
+                  </div>
+                )}
                 <div className="card-body">
-                  <h5>{name}</h5>
-                  <p className="text-primary">{role}</p>
-                  <p className="text-secondary">{desc}</p>
+                  <h5>{f.name}</h5>
+                  <p className="text-primary">{f.designation || 'Faculty Member'}</p>
+                  <p className="text-secondary" style={{ fontSize: '14px' }}>
+                    {f.description || `Faculty member in the ${f.dept || 'University'} department.`}
+                  </p>
                 </div>
               </div>
             </div>

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { apiGetProgrammes } from '../utils/storage';
+import SchoolIcon from '@mui/icons-material/School';
 
 const highlights = [
   { value:'20+',  label:'Industry Aligned Programmes' },
@@ -11,44 +13,25 @@ const highlights = [
   { value:'120+', label:'Recruiting Companies' },
 ];
 
-const engProgrammes = [
-  {
-    img:'/images/cse.jpg',
-    title:'Computer Science Engineering',
-    desc:'Specializations in Artificial Intelligence, Data Science, Cyber Security, Full Stack Development and Cloud Computing.',
-    points:['Smart Labs','Hackathons','Industry Projects','Internships'],
-  },
-  {
-    img:'/images/it.jpg',
-    title:'Information Technology',
-    desc:'Advanced networking, database systems, software engineering, DevOps and enterprise application development.',
-    points:['Cloud Computing','Networking Labs','Software Training','Placement Coaching'],
-  },
-  {
-    img:'/images/ece.jpg',
-    title:'Electronics & Communication',
-    desc:'Embedded Systems, Robotics, IoT, VLSI Design, Automation and Communication Technologies.',
-    points:['IoT Labs','Robotics Projects','Industrial Visits','Research Activities'],
-  },
-];
-
-const mgmtProgrammes = [
-  {
-    img:'/images/bba.jpg',
-    title:'Bachelor of Business Administration',
-    desc:'Covers Finance, Marketing, Human Resource Management, Entrepreneurship and Business Communication.',
-  },
-  {
-    img:'/images/mba.jpg',
-    title:'Master of Business Administration',
-    desc:'Advanced learning in Business Analytics, Operations, Strategic Management, Leadership and Innovation.',
-  },
-];
-
 function Programmes() {
+  const [engProgrammes, setEngProgrammes]   = useState([]);
+  const [mgmtProgrammes, setMgmtProgrammes] = useState([]);
+
+  useEffect(() => {
+    const fetchProgs = async () => {
+      try {
+        const res = await apiGetProgrammes();
+        const progs = res; // the API returns array directly
+        setEngProgrammes(progs.filter(p => p.type === 'Engineering'));
+        setMgmtProgrammes(progs.filter(p => p.type === 'Management'));
+      } catch (err) { console.error('Failed to load programmes', err); }
+    };
+    fetchProgs();
+  }, []);
+
   return (
     <div className="d-flex flex-column min-vh-100">
-      <TopBar message="🎓 Engineering & Management Programmes" />
+      <TopBar message={<span className="d-flex align-items-center justify-content-center gap-2"><SchoolIcon fontSize="small"/> Engineering & Management Programmes</span>} />
       <Navbar />
 
       {/* HERO */}
@@ -99,16 +82,20 @@ function Programmes() {
           <p className="text-secondary">Technology driven programmes with practical learning experience.</p>
         </div>
         <div className="row g-4">
-          {engProgrammes.map(({ img, title, desc, points }) => (
-            <div className="col-lg-4" key={title}>
+          {engProgrammes.length === 0 ? (
+            <div className="col-12 text-center text-muted py-4">No engineering programmes listed yet.</div>
+          ) : engProgrammes.map(({ _id, img, title, desc, points }) => (
+            <div className="col-lg-4" key={_id}>
               <div className="card border-0 shadow h-100">
-                <img src={img} className="card-img-top" alt={title} />
+                {img ? <img src={img} className="card-img-top" alt={title} /> : <div className="bg-light w-100" style={{height:'200px'}}></div>}
                 <div className="card-body">
                   <h4 className="fw-bold">{title}</h4>
                   <p className="text-secondary">{desc}</p>
-                  <ul className="text-secondary">
-                    {points.map(p => <li key={p}>{p}</li>)}
-                  </ul>
+                  {points && points.length > 0 && (
+                    <ul className="text-secondary">
+                      {points.map((p, i) => <li key={i}>{p}</li>)}
+                    </ul>
+                  )}
                 </div>
               </div>
             </div>
@@ -123,13 +110,20 @@ function Programmes() {
           <p className="text-secondary">Leadership oriented programmes for future business professionals.</p>
         </div>
         <div className="row g-4">
-          {mgmtProgrammes.map(({ img, title, desc }) => (
-            <div className="col-lg-6" key={title}>
+          {mgmtProgrammes.length === 0 ? (
+             <div className="col-12 text-center text-muted py-4">No management programmes listed yet.</div>
+          ) : mgmtProgrammes.map(({ _id, img, title, desc, points }) => (
+            <div className="col-lg-6" key={_id}>
               <div className="card border-0 shadow h-100">
-                <img src={img} className="card-img-top" alt={title} />
+                {img ? <img src={img} className="card-img-top" alt={title} /> : <div className="bg-light w-100" style={{height:'200px'}}></div>}
                 <div className="card-body">
                   <h4 className="fw-bold">{title}</h4>
                   <p className="text-secondary">{desc}</p>
+                  {points && points.length > 0 && (
+                    <ul className="text-secondary">
+                      {points.map((p, i) => <li key={i}>{p}</li>)}
+                    </ul>
+                  )}
                 </div>
               </div>
             </div>

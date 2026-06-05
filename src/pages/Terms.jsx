@@ -2,11 +2,12 @@ import React from 'react';
 import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 function Terms() {
   return (
     <div className="d-flex flex-column min-vh-100">
-      <TopBar message="📜 Terms and Conditions" />
+      <TopBar message={<span className="d-flex align-items-center justify-content-center gap-2"><DescriptionIcon fontSize="small"/> Terms and Conditions</span>} />
       <Navbar />
       <div className="container my-5 flex-grow-1">
         <div className="row justify-content-center">

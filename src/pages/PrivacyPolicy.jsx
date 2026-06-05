@@ -2,11 +2,12 @@ import React from 'react';
 import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import LockIcon from '@mui/icons-material/Lock';
 
 function PrivacyPolicy() {
   return (
     <div className="d-flex flex-column min-vh-100">
-      <TopBar message="🔒 Privacy Policy" />
+      <TopBar message={<span className="d-flex align-items-center justify-content-center gap-2"><LockIcon fontSize="small"/> Privacy Policy</span>} />
       <Navbar />
       <div className="container my-5 flex-grow-1">
         <div className="row justify-content-center">

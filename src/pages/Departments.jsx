@@ -1,58 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { apiGetDepartments } from '../utils/storage';
 
-const departments = [
-  {
-    img:'/images/cse-dept.jpg',
-    title:'💻 Computer Science Engineering',
-    desc:'Focused on Artificial Intelligence, Data Science, Cyber Security, Full Stack Development and Cloud Computing.',
-    facts:['12 Research Labs','85 Faculty Members','AI Innovation Centre'],
-  },
-  {
-    img:'/images/it-dept.jpg',
-    title:'⚙️ Information Technology',
-    desc:'Advanced networking, database systems, software engineering, DevOps and enterprise application development.',
-    facts:['8 Research Labs','65 Faculty Members','Cyber Security & Cloud Lab'],
-  },
-  {
-    img:'/images/ece-dept.jpg',
-    title:'📡 Electronics & Communication',
-    desc:'Embedded Systems, Robotics, IoT, VLSI Design, Automation and Communication Technologies.',
-    facts:['10 Research Labs','70 Faculty Members','IoT & Robotics Centre'],
-  },
-  {
-    img:'/images/dept-mgnt.jpg',
-    title:'📈 Management Studies',
-    desc:'Business leadership, finance, marketing, HR, analytics and entrepreneurship.',
-    facts:['5 Research Labs','45 Faculty Members','Business Incubation Centre'],
-  },
-];
-
-const programmeTable = [
-  ['Computer Science Engineering','B.Tech (CSE)','M.Tech (CSE)','PhD'],
-  ['Information Technology',      'B.Tech (IT)', 'M.Tech (IT)', '—'],
-  ['Electronics & Communication', 'B.Tech (ECE)','M.Tech (ECE)','—'],
-  ['Management Studies',          'BBA',          'MBA',         '—'],
-];
+import BusinessIcon from '@mui/icons-material/Business';
+import ScienceIcon from '@mui/icons-material/Science';
+import PublicIcon from '@mui/icons-material/Public';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 const research = [
-  { icon:'🔬', title:'Advanced Labs',          desc:'Smart laboratories with modern research equipment' },
-  { icon:'🌍', title:'International Projects', desc:'Global academic and research collaborations' },
-  { icon:'📚', title:'Publications',           desc:'High-impact journals, patents and conferences' },
-  { icon:'💡', title:'Innovation Centre',      desc:'Startup incubation and entrepreneurship support' },
+  { icon: <ScienceIcon fontSize="large" color="primary" />, title:'Advanced Labs',          desc:'Smart laboratories with modern research equipment' },
+  { icon: <PublicIcon fontSize="large" color="primary" />, title:'International Projects', desc:'Global academic and research collaborations' },
+  { icon: <MenuBookIcon fontSize="large" color="primary" />, title:'Publications',           desc:'High-impact journals, patents and conferences' },
+  { icon: <LightbulbIcon fontSize="large" color="primary" />, title:'Innovation Centre',      desc:'Startup incubation and entrepreneurship support' },
 ];
 
 function Departments() {
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    const fetchDepts = async () => {
+      try {
+        const res = await apiGetDepartments();
+        setDepartments(res);
+      } catch (err) { console.error('Failed to load departments', err); }
+    };
+    fetchDepts();
+  }, []);
+
   return (
     <div className="d-flex flex-column min-vh-100">
-      <TopBar message="🏢 Explore Academic Departments & Research Centres" />
+      <TopBar message={<span className="d-flex align-items-center justify-content-center gap-2"><BusinessIcon fontSize="small"/> Explore Academic Departments & Research Centres</span>} />
       <Navbar />
 
       {/* HERO */}
-      <section className="container py-5">
+      <section className="container py-3">
         <div className="row align-items-center">
           <div className="col-lg-6">
             <h1 className="fw-bold mb-4">
@@ -82,14 +67,18 @@ function Departments() {
           <p className="text-secondary">Academic divisions and innovation centres</p>
         </div>
         <div className="row g-4">
-          {departments.map(({ img, title, desc, facts }) => (
-            <div className="col-md-6 col-lg-3" key={title}>
+          {departments.length === 0 ? (
+            <div className="col-12 text-center text-muted py-4">No departments listed yet.</div>
+          ) : departments.map(({ _id, img, title, desc, facts }) => (
+            <div className="col-md-6 col-lg-3" key={_id}>
               <div className="card border-0 shadow rounded-4 h-100">
-                <img src={img} className="card-img-top" height="200" alt={title} />
+                {img ? <img src={img} className="card-img-top" height="200" style={{objectFit:'cover'}} alt={title} /> : <div className="bg-light w-100" style={{height:'200px'}}></div>}
                 <div className="card-body">
                   <h4>{title}</h4>
                   <p className="text-secondary">{desc}</p>
-                  <ul>{facts.map(f => <li key={f}>{f}</li>)}</ul>
+                  {facts && facts.length > 0 && (
+                    <ul>{facts.map((f, i) => <li key={i}>{f}</li>)}</ul>
+                  )}
                 </div>
               </div>
             </div>
@@ -114,9 +103,14 @@ function Departments() {
               </tr>
             </thead>
             <tbody>
-              {programmeTable.map(([dept, ug, pg, res]) => (
-                <tr key={dept}>
-                  <td>{dept}</td><td>{ug}</td><td>{pg}</td><td>{res}</td>
+              {departments.length === 0 ? (
+                <tr><td colSpan="4" className="text-center text-muted py-3">No data available</td></tr>
+              ) : departments.map(({ _id, title, ug, pg, research }) => (
+                <tr key={_id}>
+                  <td><strong>{title}</strong></td>
+                  <td>{ug || '—'}</td>
+                  <td>{pg || '—'}</td>
+                  <td>{research || '—'}</td>
                 </tr>
               ))}
             </tbody>
