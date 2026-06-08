@@ -105,17 +105,6 @@ export default function Navbar() {
         className="au-hamburger"
         onClick={() => setOpen(o => !o)}
         aria-label="Toggle navigation"
-        style={{
-          display: 'none',          /* CSS shows this on mobile */
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'none',
-          border: '1.5px solid #2E2C78',
-          borderRadius: '7px',
-          padding: '5px 8px',
-          cursor: 'pointer',
-          color: '#2E2C78',
-        }}
       >
         {open ? <CloseIcon /> : <MenuIcon />}
       </button>

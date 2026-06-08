@@ -141,6 +141,19 @@ p  { font-size: 14px; }
     border-color: #2E2C78;
 }
 
+/* ── HAMBURGER BUTTON ──────────────────────────── */
+.au-hamburger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1.5px solid #2E2C78;
+    border-radius: 7px;
+    padding: 5px 8px;
+    cursor: pointer;
+    color: #2E2C78;
+}
+
 /*  LOGIN pill — always stands out  */
 .nav-links a.nav-login {
     background: #2E2C78;

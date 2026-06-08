@@ -54,15 +54,15 @@ function Home() {
         <section className="portal-section">
           <div className="portal-card">
             <h2 className="d-flex align-items-center gap-2"><SchoolIcon/> STUDENT</h2><p>Attendance, results and courses</p><br />
-            <Link to="/student-dashboard" className="hero-btn">Open Portal</Link>
+            <Link to="/login" className="hero-btn">Open Portal</Link>
           </div>
           <div className="portal-card">
             <h2 className="d-flex align-items-center gap-2"><SecurityIcon/> ADMIN</h2><p>University management dashboard</p><br />
-            <Link to="/admin-dashboard" className="hero-btn">Open Panel</Link>
+            <Link to="/login" className="hero-btn">Open Panel</Link>
           </div>
           <div className="portal-card">
             <h2 className="d-flex align-items-center gap-2"><SchoolIcon/> FACULTY</h2><p>Staff info &amp; Student reports</p><br />
-            <Link to="/faculty-dashboard" className="hero-btn">Open Panel</Link>
+            <Link to="/login" className="hero-btn">Open Panel</Link>
           </div>
         </section>
         <div className="side-image"><img src="/images/right.jpg" alt="University" /></div>
