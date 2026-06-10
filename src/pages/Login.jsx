@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
-import Navbar from '../components/Navbar';
+
 import {
   ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_ROLE,
   apiLogin, doLogin,
@@ -63,7 +63,7 @@ function Login() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <TopBar message={<span className="d-flex align-items-center justify-content-center gap-2"><SchoolIcon fontSize="small"/> Ashford University Portal Login</span>} />
-      <Navbar />
+    
 
       <div className="container my-5 flex-grow-1">
         <div className="row justify-content-center">
@@ -150,10 +150,6 @@ function Login() {
           </div>
         </div>
       </div>
-
-      <footer className="footer">
-        <div className="footer-bottom">© 2026 Ashford University · All Rights Reserved</div>
-      </footer>
     </div>
   );
 }
